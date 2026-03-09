@@ -186,7 +186,7 @@ const phases = [
     number: "01", title: "Vision globale", subtitle: "/brainstorm — le projet dans son ensemble",
     accent: "#7BA374", who: "superpowers",
     steps: [
-      { icon: "💡", name: "Décrire l'idée brute", detail: '/brainstorm "Je veux créer un SaaS de gestion\nde projets pour freelances avec facturation\nintégrée et suivi du temps"\n\nMême vague, Superpowers va creuser.' },
+      { icon: "💡", name: "Rédiger le fichier de vision", detail: "Créer un fichier décrivant l'idée du projet :\n\nplanning/vision.md\n\nContenu (même minimaliste, c'est OK) :\n→ Quel est le produit ?\n→ À qui il s'adresse ?\n→ Quelles sont les grandes fonctionnalités ?\n→ Contraintes connues (budget, délai, stack...)\n\nPuis lancer le brainstorm avec le fichier :\n/brainstorm @planning/vision.md\n\nSuperpowers va s'appuyer sur ce fichier\npour poser ses questions et creuser l'idée." },
       { icon: "❓", name: "Répondre aux questions", detail: "Superpowers pose des questions une par une :\n→ Quel public cible ?\n→ App web, mobile, les deux ?\n→ Quelles intégrations ?\n→ Modèle de revenus ?\n→ Contraintes techniques ?" },
       { icon: "🏛️", name: "Explorer les grandes approches", detail: "Superpowers propose 2-3 visions d'architecture :\n\nA) Monolithe Next.js + PostgreSQL\nB) API séparée (Fastify) + SPA React\nC) Serverless (AWS Lambda) + DynamoDB\n\n→ Discussion des trade-offs\n→ Tu choisis la direction" },
       { icon: "📄", name: "Design document validé", detail: "Superpowers produit :\ndocs/plans/YYYY-MM-DD-project-vision-design.md\n\nContient : architecture, stack, composants\nmajeurs, flux de données, stratégie de test" },
