@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow — Superpowers + Deep-Plan</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    background: #1A1A1A;
+    color: #E8E8E8;
+    font-family: Georgia, 'Times New Roman', serif;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+
+  /* Header */
+  .header-tag {
+    font-size: 11px; letter-spacing: 4px; text-transform: uppercase;
+    color: #888; margin-bottom: 12px; font-family: 'Courier New', monospace;
+  }
+  h1 {
+    font-size: clamp(28px, 5vw, 42px); font-weight: 400;
+    line-height: 1.15; margin: 0 0 16px; color: #F5F0E8; letter-spacing: -0.5px;
+  }
+  h1 em { font-style: italic; color: #C4A97D; }
+  .header-desc {
+    font-size: 15px; line-height: 1.7; color: #999; max-width: 580px;
+  }
+
+  /* Phase card */
+  .phase {
+    background: #1F1F1F; border: 1px solid #333; border-radius: 12px;
+    padding: 24px; cursor: pointer; transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+  }
+  .phase:hover { background: #222; }
+  .phase.active { background: #252525; }
+  .phase-bar {
+    position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+    border-radius: 12px 0 0 12px;
+  }
+  .phase-inner { display: flex; align-items: flex-start; gap: 16px; margin-left: 12px; }
+  .phase-number {
+    font-family: 'Courier New', monospace; font-size: 32px; font-weight: 700;
+    line-height: 1; min-width: 48px; opacity: 0.7;
+  }
+  .phase-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; flex-wrap: wrap;
+  }
+  .phase-title-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .phase-title {
+    font-size: 22px; font-weight: 600; margin: 0; color: #F0ECE4; letter-spacing: -0.3px;
+  }
+  .who-badge {
+    font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px;
+    font-family: 'Courier New', monospace; font-weight: 700; white-space: nowrap;
+  }
+  .phase-subtitle { font-size: 13px; color: #888; font-style: italic; margin-top: 4px; }
+  .phase-toggle {
+    font-size: 18px; transition: transform 0.3s ease; flex-shrink: 0;
+  }
+  .phase.active .phase-toggle { transform: rotate(45deg); }
+
+  /* Pills */
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pill {
+    font-size: 11px; padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+  }
+
+  /* Steps */
+  .steps { margin-top: 20px; margin-left: 12px; display: none; flex-direction: column; gap: 8px; }
+  .phase.active .steps { display: flex; }
+  .phase.active .pills { display: none; }
+  .step {
+    background: #1A1A1A; border: 1px solid #2A2A2A; border-radius: 8px;
+    padding: 14px 16px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .step.active { border-color: rgba(150,150,150,0.3); }
+  .step-header { display: flex; align-items: center; gap: 10px; }
+  .step-icon { font-size: 18px; }
+  .step-name { font-size: 14px; font-weight: 600; color: #DDD; }
+  .step-arrow {
+    margin-left: auto; font-size: 12px; color: #555;
+    transition: transform 0.2s ease; display: inline-block;
+  }
+  .step.active .step-arrow { transform: rotate(90deg); }
+  .step-detail {
+    display: none; margin-top: 10px; margin-left: 28px;
+    font-size: 12px; line-height: 1.6; color: #AAA;
+    font-family: 'Courier New', monospace; white-space: pre-wrap;
+    background: #151515; padding: 12px; border-radius: 6px; border: 1px solid #2A2A2A;
+  }
+  .step.active .step-detail { display: block; }
+
+  /* Connector */
+  .connector {
+    display: flex; justify-content: center; padding: 2px 0;
+  }
+  .connector-line {
+    width: 2px; height: 32px; position: relative;
+    background: linear-gradient(to bottom, #666, #999);
+  }
+  .connector-arrow {
+    position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent;
+    border-top: 6px solid #999;
+  }
+
+  /* Loop badge */
+  .loop-badge {
+    font-size: 12px; color: #7B8FB5; font-family: 'Courier New', monospace;
+    padding: 8px 20px; border: 1px dashed rgba(123,143,181,0.25);
+    border-radius: 100px; background: rgba(123,143,181,0.06);
+    display: inline-block;
+  }
+
+  /* Legend */
+  .legend {
+    padding: 24px; border-top: 1px solid #333;
+    display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;
+  }
+  .legend-item { display: flex; align-items: center; gap: 8px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-label { font-size: 12px; color: #888; font-family: 'Courier New', monospace; }
+
+  /* Summary */
+  .summary {
+    background: #222; border-radius: 12px; padding: 24px; border: 1px solid #333;
+  }
+  .summary-tag {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: #777; margin-bottom: 16px; font-family: 'Courier New', monospace;
+  }
+  .summary-flow {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; flex-wrap: wrap; font-size: 13px;
+  }
+  .summary-step {
+    padding: 8px 14px; border-radius: 8px;
+    white-space: pre-line; text-align: center; line-height: 1.3; font-size: 12px;
+  }
+  .summary-arrow { color: #444; font-size: 16px; }
+</style>
+</head>
+<body>
+
+<div class="container" style="margin-bottom: 48px;">
+  <div class="header-tag">Workflow complet · Nouveau projet</div>
+  <h1>De la vision au code,<br><em>feature par feature.</em></h1>
+  <p class="header-desc">
+    Superpowers cadre la vision globale. Tu découpes en features.
+    Deep-plan planifie chaque feature en profondeur. Toi, tu valides.
+    Puis Superpowers exécute avec TDD et sous-agents.
+  </p>
+</div>
+
+<div class="container" id="timeline"></div>
+
+<div class="container" style="margin-top: 8px; text-align: center;">
+  <div class="loop-badge">↩ Retour phase 03 pour chaque nouvelle feature</div>
+</div>
+
+<div class="container legend" style="margin-top: 40px;" id="legend"></div>
+
+<div class="container" style="margin-top: 24px;" id="summary"></div>
+
+<script>
+const phases = [
+  {
+    number: "00", title: "Installation", subtitle: "Outiller l'environnement",
+    accent: "#888", who: "toi",
+    steps: [
+      { icon: "⚙️", name: "Installer Superpowers", detail: "/plugin marketplace add obra/superpowers-marketplace\n/plugin install superpowers@superpowers-marketplace" },
+      { icon: "⚙️", name: "Installer deep-plan", detail: "/plugin marketplace add piercelamb/deep-plan\n/plugin install deep-plan\n/plugin enable deep-plan" },
+      { icon: "🔑", name: "Configurer les clés API", detail: 'export GEMINI_API_KEY="..."\nexport OPENAI_API_KEY="..."\n\nNécessaire pour les reviews multi-LLM de deep-plan' },
+      { icon: "📁", name: "Init le repo", detail: "mkdir mon-projet && cd mon-projet && git init" },
+    ],
+  },
+  {
+    number: "01", title: "Vision globale", subtitle: "/brainstorm — le projet dans son ensemble",
+    accent: "#7BA374", who: "superpowers",
+    steps: [
+      { icon: "💡", name: "Décrire l'idée brute", detail: '/brainstorm "Je veux créer un SaaS de gestion\nde projets pour freelances avec facturation\nintégrée et suivi du temps"\n\nMême vague, Superpowers va creuser.' },
+      { icon: "❓", name: "Répondre aux questions", detail: "Superpowers pose des questions une par une :\n→ Quel public cible ?\n→ App web, mobile, les deux ?\n→ Quelles intégrations ?\n→ Modèle de revenus ?\n→ Contraintes techniques ?" },
+      { icon: "🏛️", name: "Explorer les grandes approches", detail: "Superpowers propose 2-3 visions d'architecture :\n\nA) Monolithe Next.js + PostgreSQL\nB) API séparée (Fastify) + SPA React\nC) Serverless (AWS Lambda) + DynamoDB\n\n→ Discussion des trade-offs\n→ Tu choisis la direction" },
+      { icon: "📄", name: "Design document validé", detail: "Superpowers produit :\ndocs/plans/YYYY-MM-DD-project-vision-design.md\n\nContient : architecture, stack, composants\nmajeurs, flux de données, stratégie de test" },
+    ],
+  },
+  {
+    number: "02", title: "Découpage en features", subtitle: "Transformer la vision en specs actionnables",
+    accent: "#6BA3A3", who: "toi+superpowers",
+    steps: [
+      { icon: "✂️", name: "Identifier les features", detail: "À partir du design document, lister\ntoutes les features du projet :\n\nFeature 0 : Architecture de base & scaffolding\nFeature 1 : Authentification & gestion users\nFeature 2 : Gestion de projets (CRUD)\nFeature 3 : Suivi du temps\nFeature 4 : Facturation & paiement\nFeature 5 : Dashboard & analytics" },
+      { icon: "📊", name: "Prioriser", detail: "Organiser par dépendances et priorité :\n\n1. Archi de base (tout en dépend)\n2. Auth (nécessaire pour le reste)\n3. Gestion projets (cœur du produit)\n4. Suivi temps (dépend de projets)\n5. Facturation (dépend de projets + temps)\n6. Dashboard (dépend de tout)" },
+      { icon: "📝", name: "Rédiger les fichiers spec", detail: "Un fichier par feature :\n\nplanning/00-architecture-spec.md\nplanning/01-auth-spec.md\nplanning/02-projects-spec.md\nplanning/03-time-tracking-spec.md\n...\n\nChaque spec peut être courte (bullet points)\nou détaillée — deep-plan comblera les trous." },
+    ],
+  },
+  {
+    number: "03", title: "/deep-plan — Feature 0", subtitle: "L'architecture de base en premier",
+    accent: "#9B7BB5", who: "deep-plan",
+    steps: [
+      { icon: "🚀", name: "Lancer deep-plan", detail: "/compact\n/deep-plan @planning/00-architecture-spec.md\n\n/compact avant car deep-plan consomme\nbeaucoup de tokens" },
+      { icon: "🔍", name: "Recherche", detail: "Deep-plan recherche les bonnes pratiques :\n→ Structure de projet recommandée\n→ Config TypeScript / ESLint / Prettier\n→ Patterns d'architecture pour la stack choisie\n→ Setup de la CI/CD" },
+      { icon: "🎤", name: "Interview", detail: "5-10 questions ciblées sur l'archi :\n→ Monorepo ou polyrepo ?\n→ ORM : Prisma, Drizzle, TypeORM ?\n→ Stratégie de déploiement ?\n→ Gestion des env (dev/staging/prod) ?\n→ Convention de commit ?" },
+      { icon: "🤖", name: "Review multi-LLM", detail: "Le plan d'architecture est soumis à :\n→ Gemini : feedback indépendant\n→ OpenAI : feedback indépendant\n\nLes retours sont intégrés au plan final.\nLes points de désaccord entre LLMs\nsont signalés pour que tu tranches." },
+      { icon: "📦", name: "Sections produites", detail: "planning/\n├── claude-plan.md          ★ Plan principal\n├── claude-research.md      Recherche\n├── claude-interview.md     Transcript\n├── claude-plan-tdd.md      Stubs de test\n├── reviews/\n│   ├── gemini-review.md\n│   └── openai-review.md\n└── sections/\n    ├── section-01-project-setup.md\n    ├── section-02-database-schema.md\n    ├── section-03-api-scaffold.md\n    └── ..." },
+    ],
+  },
+  {
+    number: "04", title: "CLAUDE.md", subtitle: "Écrire le contrat — maintenant tu sais",
+    accent: "#B59B6B", who: "toi",
+    steps: [
+      { icon: "🧠", name: "Pourquoi maintenant ?", detail: "Avant deep-plan, tu ne savais pas encore :\n→ Quelle stack exacte\n→ Quelles conventions\n→ Quelle structure de dossiers\n→ Quels outils de test/lint/build\n\nMaintenant que le plan d'archi est validé,\ntu as toutes les infos pour écrire le CLAUDE.md." },
+      { icon: "📋", name: "Règles de workflow", detail: "Quand utiliser /deep-plan vs /brainstorm :\n→ Feature complexe → /deep-plan\n→ Feature simple → /brainstorm\n→ Bug fix → direct Superpowers\n\nRègle de handoff :\n→ deep-plan planifie\n→ Tu valides\n→ Superpowers exécute" },
+      { icon: "🏗️", name: "Conventions du projet", detail: "Issues du plan d'archi validé :\n→ Stack : Next.js 15, PostgreSQL, Prisma...\n→ Structure : src/features/<feature>/\n→ Nommage : kebab-case fichiers, PascalCase composants\n→ Tests : Vitest, dossier __tests__/\n→ Commits : Conventional Commits\n→ Commandes : npm run dev/test/build/lint" },
+      { icon: "🚫", name: "Interdictions", detail: "→ Pas de code sans plan validé\n→ Pas de brainstorm Superpowers si\n  deep-plan est déjà actif\n→ Pas de nouvelle dépendance sans justification\n→ Pas de modification hors scope de la feature" },
+    ],
+  },
+  {
+    number: "05", title: "Validation humaine", subtitle: "Rien ne bouge sans ton feu vert",
+    accent: "#B57B7B", who: "toi",
+    steps: [
+      { icon: "👁️", name: "Relire le plan d'archi", detail: "planning/claude-plan.md\n\nVérifier :\n→ L'architecture correspond à ta vision\n→ Les choix techniques sont justifiés\n→ Le découpage en sections est logique" },
+      { icon: "📖", name: "Comparer les reviews LLM", detail: "reviews/gemini-review.md\nreviews/openai-review.md\n\nIdentifier :\n→ Points d'accord (= forte confiance)\n→ Points de désaccord (= à trancher)\n→ Risques signalés par l'un mais pas l'autre" },
+      { icon: "✏️", name: "Ajuster si nécessaire", detail: "Modifier le plan manuellement si besoin.\nAjouter/retirer des sections.\nRéordonner les priorités.\nPréciser les zones floues." },
+      { icon: "✅", name: "Feu vert", detail: '"Le plan est validé, on passe à l\'exécution."\n\nSans ce message explicite,\naucune ligne de code ne sera écrite.' },
+    ],
+  },
+  {
+    number: "06", title: "Exécution Superpowers", subtitle: "L'architecture prend forme",
+    accent: "#B5A47B", who: "superpowers",
+    steps: [
+      { icon: "🌿", name: "Git Worktree", detail: "Superpowers crée une branche isolée.\nLe main reste vierge pendant le dev.\nChaque feature aura son propre worktree." },
+      { icon: "📐", name: "/write-plan", detail: "Les sections de deep-plan sont découpées\nen micro-tâches de 2-5 min :\n\n→ Tâche 1 : Créer le test pour le setup DB\n→ Tâche 2 : Implémenter la connexion DB\n→ Tâche 3 : Créer le test pour le premier modèle\n→ ...\n\nChaque tâche = fichiers exacts + code + vérification" },
+      { icon: "🚀", name: "/execute-plan", detail: "Un sous-agent frais par tâche :\n\n1. Test rouge (doit échouer)\n2. Code minimal (fait passer le test)\n3. Test vert (vérifié)\n4. Commit\n5. Code review automatique\n6. Tâche suivante...\n\nTDD strict à chaque étape." },
+      { icon: "🔍", name: "Review & merge", detail: "→ requesting-code-review valide le tout\n→ finishing-branch propose :\n   • Merge dans main\n   • Créer une PR\n   • Garder la branche\n   • Abandonner\n→ Worktree nettoyé" },
+    ],
+  },
+  {
+    number: "07", title: "Feature suivante", subtitle: "Répéter le cycle",
+    accent: "#7B8FB5", who: "boucle",
+    steps: [
+      { icon: "🔄", name: "Reprendre à la phase 03", detail: "/compact\n/deep-plan @planning/01-auth-spec.md\n\n→ Recherche + Interview + Reviews\n→ Validation humaine\n→ Exécution Superpowers\n→ Merge\n\nPuis feature 02, 03, 04..." },
+      { icon: "💡", name: "Quand utiliser /brainstorm plutôt", detail: "Pour les features simples :\n→ Pas besoin de recherche web\n→ Exigences déjà claires\n→ 1-3 fichiers impactés\n\nDans ce cas, sauter deep-plan :\n/brainstorm → /write-plan → /execute-plan" },
+      { icon: "📝", name: "CLAUDE.md — seulement si nécessaire", detail: "Le CLAUDE.md n'est PAS réécrit à chaque feature.\nIl a été créé une fois à la phase 04.\n\nAjouter une ligne uniquement si :\n→ Un nouveau pattern émerge\n   ex: \"pagination: cursor-based\"\n→ Une nouvelle convention est décidée\n   ex: \"webhooks: toujours vérifier signature\"\n→ Claude fait une erreur récurrente\n   ex: \"ne jamais utiliser any en TypeScript\"\n\nLa plupart des features ne changeront\nrien au CLAUDE.md." },
+    ],
+  },
+];
+
+const whoConfig = {
+  toi:               { text: "TOI",               bg: "#B57B7B20", border: "#B57B7B50", color: "#E0A0A0" },
+  superpowers:       { text: "SUPERPOWERS",        bg: "#B5A47B20", border: "#B5A47B50", color: "#E0D0A0" },
+  "deep-plan":       { text: "DEEP-PLAN",          bg: "#9B7BB520", border: "#9B7BB550", color: "#C4A0E0" },
+  "toi+superpowers": { text: "TOI + SUPERPOWERS",  bg: "#6BA3A320", border: "#6BA3A350", color: "#A0D0D0" },
+  boucle:            { text: "BOUCLE",             bg: "#7B8FB520", border: "#7B8FB550", color: "#A0B8E0" },
+};
+
+// Render timeline
+const timeline = document.getElementById("timeline");
+
+phases.forEach((phase, i) => {
+  const who = whoConfig[phase.who];
+
+  // Phase card
+  const card = document.createElement("div");
+  card.className = "phase";
+  card.innerHTML = `
+    <div class="phase-bar" style="background:${phase.accent}"></div>
+    <div class="phase-inner">
+      <div class="phase-number" style="color:${phase.accent}">${phase.number}</div>
+      <div style="flex:1">
+        <div class="phase-header">
+          <div class="phase-title-row">
+            <h2 class="phase-title">${phase.title}</h2>
+            <span class="who-badge" style="background:${who.bg};border:1px solid ${who.border};color:${who.color}">${who.text}</span>
+          </div>
+          <div class="phase-toggle" style="color:${phase.accent}">+</div>
+        </div>
+        <div class="phase-subtitle">${phase.subtitle}</div>
+        <div class="pills">
+          ${phase.steps.map(s => `<span class="pill" style="background:${phase.accent}18;color:${phase.accent};border:1px solid ${phase.accent}30">${s.icon} ${s.name}</span>`).join("")}
+        </div>
+        <div class="steps">
+          ${phase.steps.map(s => `
+            <div class="step">
+              <div class="step-header">
+                <span class="step-icon">${s.icon}</span>
+                <span class="step-name">${s.name}</span>
+                <span class="step-arrow">▸</span>
+              </div>
+              <div class="step-detail">${s.detail}</div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Toggle phase
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".step")) return;
+    const wasActive = card.classList.contains("active");
+    document.querySelectorAll(".phase").forEach(p => {
+      p.classList.remove("active");
+      p.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+    });
+    if (!wasActive) card.classList.add("active");
+    card.style.borderColor = card.classList.contains("active") ? phase.accent : "#333";
+  });
+
+  // Toggle steps
+  card.querySelectorAll(".step").forEach(step => {
+    step.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const wasActive = step.classList.contains("active");
+      card.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+      if (!wasActive) step.classList.add("active");
+      step.style.background = step.classList.contains("active") ? phase.accent + "15" : "#1A1A1A";
+      step.style.borderColor = step.classList.contains("active") ? phase.accent + "50" : "#2A2A2A";
+    });
+  });
+
+  timeline.appendChild(card);
+
+  // Connector
+  if (i < phases.length - 1) {
+    const conn = document.createElement("div");
+    conn.className = "connector";
+    conn.innerHTML = '<div class="connector-line"><div class="connector-arrow"></div></div>';
+    timeline.appendChild(conn);
+  }
+});
+
+// Legend
+const legendData = [
+  { who: "superpowers", label: "Superpowers" },
+  { who: "deep-plan", label: "Deep-plan" },
+  { who: "toi", label: "Toi" },
+  { who: "boucle", label: "Boucle" },
+];
+const legend = document.getElementById("legend");
+legendData.forEach(item => {
+  const w = whoConfig[item.who];
+  const el = document.createElement("div");
+  el.className = "legend-item";
+  el.innerHTML = `<div class="legend-dot" style="background:${w.color}"></div><span class="legend-label">${item.label}</span>`;
+  legend.appendChild(el);
+});
+
+// Summary
+const summaryEl = document.getElementById("summary");
+const summarySteps = [
+  { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\ncadre la vision" },
+  { bg: "#6BA3A320", border: "#6BA3A340", color: "#A0D0D0", text: "Tu découpes\nen features" },
+  { bg: "#9B7BB520", border: "#9B7BB540", color: "#C4A0E0", text: "Deep-plan\nplanifie" },
+  { bg: "#B57B7B20", border: "#B57B7B40", color: "#E0A0A0", text: "Tu valides" },
+  { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\nexécute" },
+];
+summaryEl.innerHTML = `
+  <div class="summary">
+    <div class="summary-tag">Résumé — Le cycle</div>
+    <div class="summary-flow">
+      ${summarySteps.map((s, i) => `
+        <span class="summary-step" style="background:${s.bg};border:1px solid ${s.border};color:${s.color}">${s.text}</span>
+        ${i < summarySteps.length - 1 ? '<span class="summary-arrow">→</span>' : ''}
+      `).join("")}
+    </div>
+  </div>
+`;
+</script>
+</body>
+</html>
