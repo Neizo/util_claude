@@ -181,18 +181,19 @@ const phases = [
       { icon: "⚙️", name: "Installer Superpowers", detail: "/plugin marketplace add obra/superpowers-marketplace\n/plugin install superpowers@superpowers-marketplace" },
       { icon: "⚙️", name: "Installer deep-plan", detail: "/plugin marketplace add piercelamb/deep-plan\n/plugin install deep-plan\n/plugin enable deep-plan" },
       { icon: "⚙️", name: "Installer Vision Guard", detail: "mkdir -p ~/.claude/skills/vision-guard\ncp vision-guard-SKILL.md ~/.claude/skills/vision-guard/SKILL.md\n\nSkill custom — pas de plugin marketplace.\nIl se déclenche automatiquement quand\nune feature est planifiée ou prête à merge." },
+      { icon: "⚙️", name: "Installer Vision Writer", detail: "mkdir -p ~/.claude/skills/vision-writer\ncp vision-writer-SKILL.md ~/.claude/skills/vision-writer/SKILL.md\n\nSkill custom — génère le planning/vision.md\npar interview structurée au démarrage\nd'un nouveau projet." },
       { icon: "🔑", name: "Configurer les clés API", detail: 'export GEMINI_API_KEY="..."\nexport OPENAI_API_KEY="..."\n\nNécessaire pour les reviews multi-LLM de deep-plan' },
       { icon: "📁", name: "Init le repo", detail: "mkdir mon-projet && cd mon-projet && git init" },
     ],
   },
   {
-    number: "01", title: "Vision globale", subtitle: "/brainstorm — le projet dans son ensemble",
+    number: "01", title: "Vision globale", subtitle: "Vision Writer → puis /brainstorm",
     accent: "#7BA374", who: "superpowers",
     steps: [
-      { icon: "💡", name: "Rédiger le fichier de vision", detail: "Créer un fichier décrivant l'idée du projet :\n\nplanning/vision.md\n\nContenu (même minimaliste, c'est OK) :\n→ Quel est le produit ?\n→ À qui il s'adresse ?\n→ Quelles sont les grandes fonctionnalités ?\n→ Contraintes connues (budget, délai, stack...)\n\nPuis lancer le brainstorm avec le fichier :\n/brainstorm @planning/vision.md\n\nSuperpowers va s'appuyer sur ce fichier\npour poser ses questions et creuser l'idée." },
-      { icon: "❓", name: "Répondre aux questions", detail: "Superpowers pose des questions une par une :\n→ Quel public cible ?\n→ App web, mobile, les deux ?\n→ Quelles intégrations ?\n→ Modèle de revenus ?\n→ Contraintes techniques ?" },
-      { icon: "🏛️", name: "Explorer les grandes approches", detail: "Superpowers propose 2-3 visions d'architecture :\n\nA) Monolithe Next.js + PostgreSQL\nB) API séparée (Fastify) + SPA React\nC) Serverless (AWS Lambda) + DynamoDB\n\n→ Discussion des trade-offs\n→ Tu choisis la direction" },
-      { icon: "📄", name: "Design document validé", detail: "Superpowers produit :\ndocs/plans/YYYY-MM-DD-project-vision-design.md\n\nContient : architecture, stack, composants\nmajeurs, flux de données, stratégie de test" },
+      { icon: "🎤", name: "Interview Vision Writer", detail: "Vision Writer pose ~12 questions une par une :\n\nBloc 1 — Le quoi :\n→ Décris ton projet en 1-2 phrases\n→ Quel problème ça résout ?\n→ Fonctionnalités essentielles ?\n→ Ce que ce n'est PAS ?\n\nBloc 2 — Le pour qui :\n→ Qui sont les utilisateurs ?\n→ Quel est le parcours critique ?\n\nBloc 3 — Le comment :\n→ Contraintes techniques ?\n→ Intégrations externes ?\n→ Code existant ou from scratch ?\n\nBloc 4 — La trajectoire :\n→ Scope du MVP (V1) ?\n→ Évolutions futures (V2, V3...) ?\n→ Quelque chose que j'ai oublié ?" },
+      { icon: "📄", name: "planning/vision.md généré", detail: "Vision Writer génère le fichier structuré :\n\nplanning/vision.md\n├── Le produit (résumé + problème)\n├── Utilisateurs (profils + parcours)\n├── Fonctionnalités\n│   ├── MVP (V1)\n│   └── Hors scope V1 (futur)\n├── Contraintes (type, stack, intégrations)\n└── Principes\n\nTu relis, ajustes si besoin, puis valides.\nCommit : docs: initial project vision" },
+      { icon: "💡", name: "Lancer le brainstorm", detail: "/brainstorm @planning/vision.md\n\nSuperpowers lit le vision.md et approfondit :\n→ Explore les approches d'architecture\n→ Propose 2-3 directions techniques\n→ Discussion des trade-offs\n→ Tu choisis la direction" },
+      { icon: "📋", name: "Design document validé", detail: "Superpowers produit :\ndocs/plans/YYYY-MM-DD-project-vision-design.md\n\nContient : architecture choisie, stack,\ncomposants majeurs, flux de données,\nstratégie de test.\n\nC'est la traduction technique de ta vision." },
     ],
   },
   {
@@ -266,6 +267,7 @@ const whoConfig = {
   "toi+superpowers": { text: "TOI + SUPERPOWERS",  bg: "#6BA3A320", border: "#6BA3A350", color: "#A0D0D0" },
   boucle:            { text: "BOUCLE",             bg: "#7B8FB520", border: "#7B8FB550", color: "#A0B8E0" },
   "vision-guard":    { text: "VISION GUARD",       bg: "#4A906020", border: "#4A906050", color: "#7BD4A0" },
+  "vision-writer":   { text: "VISION WRITER",      bg: "#D4885020", border: "#D4885050", color: "#F0B880" },
 };
 
 // Render timeline
@@ -348,8 +350,9 @@ phases.forEach((phase, i) => {
 const legendData = [
   { who: "superpowers", label: "Superpowers" },
   { who: "deep-plan", label: "Deep-plan" },
-  { who: "toi", label: "Toi" },
+  { who: "vision-writer", label: "Vision Writer" },
   { who: "vision-guard", label: "Vision Guard" },
+  { who: "toi", label: "Toi" },
   { who: "boucle", label: "Boucle" },
 ];
 const legend = document.getElementById("legend");
@@ -364,7 +367,8 @@ legendData.forEach(item => {
 // Summary
 const summaryEl = document.getElementById("summary");
 const summarySteps = [
-  { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\ncadre la vision" },
+  { bg: "#D4885020", border: "#D4885040", color: "#F0B880", text: "Vision Writer\ncapture l'idée" },
+  { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\ncadre l'archi" },
   { bg: "#6BA3A320", border: "#6BA3A340", color: "#A0D0D0", text: "Tu découpes\nen features" },
   { bg: "#9B7BB520", border: "#9B7BB540", color: "#C4A0E0", text: "Deep-plan\nplanifie" },
   { bg: "#B57B7B20", border: "#B57B7B40", color: "#E0A0A0", text: "Tu valides" },
@@ -391,7 +395,7 @@ schemaEl.innerHTML = `
       Architecture des skills
     </div>
     <h2 style="font-size:clamp(22px,4vw,32px);font-weight:400;line-height:1.2;margin:0 0 8px;color:#F5F0E8;letter-spacing:-0.3px;">
-      Comment les 3 skills<br><span style="font-style:italic;color:#C4A97D;">s'articulent ensemble</span>
+      Comment les 4 skills<br><span style="font-style:italic;color:#C4A97D;">s'articulent ensemble</span>
     </h2>
     <p style="font-size:14px;color:#777;margin:0 0 40px;line-height:1.6;">
       Chaque skill a un rôle unique. Aucun ne se chevauche. Vision Guard surveille en continu.
@@ -400,8 +404,33 @@ schemaEl.innerHTML = `
     <!-- Main diagram -->
     <div style="position:relative;">
 
-      <!-- The 3 skill boxes -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;">
+      <!-- The 4 skill boxes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+
+        <!-- Vision Writer -->
+        <div style="background:#1F1F1F;border:1px solid #D4885040;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#D48850,#F0B880);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#D4885020;border:1px solid #D4885050;color:#F0B880;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Vision Writer</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">L'accoucheur</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:6px;">
+              <span style="color:#D48850;">▸</span> Interview guidée (~12 questions)
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#D48850;">▸</span> Génère planning/vision.md
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#D48850;">▸</span> Cadre MVP vs futur
+            </div>
+            <div>
+              <span style="color:#D48850;">▸</span> Référence pour Vision Guard
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
+            <div style="font-size:11px;color:#F0B880;margin-top:4px;">Phase 01 — une seule fois au démarrage</div>
+          </div>
+        </div>
 
         <!-- Superpowers -->
         <div style="background:#1F1F1F;border:1px solid #B5A47B40;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
@@ -491,11 +520,31 @@ schemaEl.innerHTML = `
       <!-- Flow diagram -->
       <div style="background:#1F1F1F;border:1px solid #333;border-radius:12px;padding:28px 24px;position:relative;overflow:hidden;">
         <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center;">
-          Cycle d'une feature
+          Flux complet — du lancement au merge
         </div>
 
         <!-- Flow rows -->
         <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+
+          <!-- Phase label: one-time -->
+          <div style="font-size:9px;color:#D4885060;font-family:'Courier New',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;">
+            ── une seule fois ──
+          </div>
+
+          <!-- Row 0: Vision Writer -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#D4885012;border:1px solid #D4885035;border-radius:8px;padding:8px 18px;font-size:12px;color:#F0B880;font-family:'Courier New',monospace;">
+              🎤 Vision Writer — interview
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Génère planning/vision.md</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Phase label: per feature -->
+          <div style="font-size:9px;color:#7B8FB560;font-family:'Courier New',monospace;letter-spacing:1.5px;text-transform:uppercase;margin:6px 0 2px;">
+            ── répété par feature ──
+          </div>
 
           <!-- Row 1: Spec -->
           <div style="display:flex;align-items:center;gap:10px;">
@@ -574,16 +623,21 @@ schemaEl.innerHTML = `
       </div>
 
       <!-- Roles summary -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px;">
-        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #B5A47B20;">
-          <div style="font-size:20px;margin-bottom:4px;">⚡</div>
-          <div style="font-size:11px;color:#B5A47B;font-weight:600;">FAIT</div>
-          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">brainstorm · plan · code</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:20px;">
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #D4885020;">
+          <div style="font-size:20px;margin-bottom:4px;">🎤</div>
+          <div style="font-size:11px;color:#F0B880;font-weight:600;">CADRE</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">vision · scope · MVP</div>
         </div>
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #9B7BB520;">
           <div style="font-size:20px;margin-bottom:4px;">🔬</div>
           <div style="font-size:11px;color:#C4A0E0;font-weight:600;">PENSE</div>
           <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">recherche · interview · review</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #B5A47B20;">
+          <div style="font-size:20px;margin-bottom:4px;">⚡</div>
+          <div style="font-size:11px;color:#B5A47B;font-weight:600;">FAIT</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">brainstorm · plan · code</div>
         </div>
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #4A906020;">
           <div style="font-size:20px;margin-bottom:4px;">🛡️</div>
