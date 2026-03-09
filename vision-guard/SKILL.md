@@ -33,14 +33,27 @@ projet avec les documents fondateurs : le fichier de vision et le design documen
 
 Le skill s'appuie sur ces fichiers (cherche-les dans cet ordre) :
 
-1. **Vision** : `planning/vision.md` — l'idée originale du projet
-2. **Design document** : `docs/plans/*-design.md` — le design validé lors du brainstorm
-3. **Feature specs** : `planning/*-spec.md` — les specs de chaque feature planifiée
-4. **CLAUDE.md** : à la racine — les conventions et le scope définis
+1. **Vision produit** : `planning/vision.md` — le "quoi" et le "pour qui"
+   Sert à vérifier : est-ce que cette feature/ce changement est dans le scope ?
+   Contient le scope IN, le scope OUT, les utilisateurs, les critères de succès.
+   C'est la référence principale pour détecter le scope creep fonctionnel.
 
-Si le fichier de vision n'existe pas, demande au développeur de le créer ou de
-désigner le fichier qui décrit l'intention du projet avant de continuer. Sans
-référence, il n'y a pas de dérive mesurable.
+2. **Design technique** : `docs/plans/*-design.md` — le "comment"
+   Sert à vérifier : est-ce que l'implémentation respecte l'architecture validée ?
+   Contient la stack, les composants, les flux de données, la stratégie de test.
+   C'est la référence principale pour détecter les dérives techniques
+   (changement de stack, de pattern, de structure sans validation).
+
+3. **Feature specs** : `planning/*-spec.md` — le périmètre de chaque feature
+4. **CLAUDE.md** : à la racine — les conventions et interdictions
+
+Les deux premiers documents sont complémentaires :
+- Le vision.md attrape "on a ajouté une feature qui n'était pas prévue"
+- Le design doc attrape "on a changé la stack ou l'architecture sans demander"
+
+Si le vision.md n'existe pas, demande au développeur de le créer (ou de lancer
+Vision Writer) avant de continuer. Si le design doc n'existe pas, se baser
+uniquement sur le vision.md en signalant que la couverture est partielle.
 
 ---
 
@@ -54,10 +67,15 @@ Objectif : vérifier que la feature envisagée fait partie de la vision avant d'
 du temps à la planifier.
 
 Étapes :
-1. Lire `planning/vision.md` et le design document
+1. Lire `planning/vision.md` (scope IN/OUT) et le design document (architecture)
 2. Lire la spec de la feature proposée
-3. Produire le rapport de cohérence (voir format ci-dessous)
-4. Si la feature est hors scope : le signaler clairement et demander au développeur
+3. Vérifier deux axes :
+   - **Axe fonctionnel** (vs vision.md) : cette feature est-elle dans le scope IN ?
+     Contredit-elle un élément du scope OUT ?
+   - **Axe technique** (vs design doc) : cette feature est-elle compatible avec
+     l'architecture validée ? Nécessite-t-elle un changement d'architecture ?
+4. Produire le rapport de cohérence (voir format ci-dessous)
+5. Si la feature est hors scope : le signaler clairement et demander au développeur
    s'il veut quand même continuer (c'est son droit — une vision peut évoluer)
 
 ### Mode 2 : Post-feature (avant de merge)
@@ -70,8 +88,13 @@ Objectif : vérifier que l'implémentation n'a pas introduit d'éléments hors s
 1. Lire la vision, le design document et la spec de la feature
 2. Analyser les fichiers créés/modifiés dans la branche courante
    (utiliser `git diff main --name-only` et `git diff main --stat`)
-3. Pour chaque fichier modifié, vérifier que les changements sont dans le périmètre
-   de la feature spec
+3. Vérifier deux axes :
+   - **Axe fonctionnel** (vs vision.md + feature spec) : les changements
+     correspondent-ils au périmètre de la feature ? Y a-t-il des ajouts
+     fonctionnels non prévus dans la spec ?
+   - **Axe technique** (vs design doc + CLAUDE.md) : la stack et l'architecture
+     sont-elles respectées ? Les conventions de nommage, de structure, de test
+     sont-elles suivies ?
 4. Identifier tout ajout qui n'était pas dans le plan :
    - Nouvelle dépendance non prévue
    - Fichier hors du scope de la feature
@@ -86,12 +109,16 @@ Se déclenche quand le développeur demande un état des lieux.
 Objectif : faire le point sur la cohérence globale du projet.
 
 Étapes :
-1. Lire la vision et le design document
+1. Lire la vision (scope IN/OUT) et le design document (architecture validée)
 2. Lister toutes les features implémentées (branches mergées, dossiers existants)
-3. Pour chaque feature, évaluer son alignement avec la vision
+3. Pour chaque feature, évaluer son alignement :
+   - **vs vision.md** : la feature sert-elle un objectif du scope IN ?
+   - **vs design doc** : la feature respecte-t-elle l'architecture prévue ?
 4. Identifier ce qui a été implémenté mais n'était pas dans la vision originale
 5. Identifier ce qui était dans la vision mais n'a pas encore été implémenté
-6. Produire le rapport global (voir format ci-dessous)
+6. Détecter les dérives techniques : changements de stack, de patterns, de
+   dépendances par rapport au design document
+7. Produire le rapport global (voir format ci-dessous)
 
 ---
 
@@ -108,8 +135,11 @@ Objectif : faire le point sur la cohérence globale du projet.
 ║ Statut  : [🟢 Alignée / 🟡 Dérive mineure / 🔴 Hors scope] ║
 ╚══════════════════════════════════════════════════════╝
 
-ALIGNEMENT AVEC LA VISION
+ALIGNEMENT AVEC LA VISION (vs vision.md)
 → [Expliquer en quoi cette feature sert ou ne sert pas la vision]
+
+ALIGNEMENT TECHNIQUE (vs design doc)
+→ [L'implémentation respecte-t-elle l'architecture validée ?]
 
 ÉLÉMENTS DANS LE SCOPE
 → [Lister ce qui est cohérent]
@@ -138,8 +168,12 @@ CE QUI EST ALIGNÉ
 → [Feature 2] — 🟢 conforme à la vision
 
 CE QUI DÉRIVE
-→ [Feature X] — 🟡 la partie [Y] n'était pas prévue
+→ [Feature X] — 🟡 la partie [Y] n'était pas prévue dans la vision
 → [Dépendance Z] — 🟡 ajoutée sans justification dans le plan
+
+DÉRIVES TECHNIQUES (vs design doc)
+→ [Changement de stack/pattern non validé]
+→ [Convention du CLAUDE.md non respectée]
 
 CE QUI MANQUE (prévu mais pas encore fait)
 → [Feature A] — dans la vision, pas encore implémentée
@@ -190,6 +224,10 @@ garde-fou.
 Formulation type : "Cette feature dépasse le scope initial. Si c'est intentionnel,
 je recommande de mettre à jour planning/vision.md pour intégrer cette direction,
 afin que les prochains checks de cohérence soient calibrés sur la vision actuelle."
+
+Pour une dérive technique : "L'implémentation s'écarte de l'architecture validée
+dans le design document. Si ce changement est intentionnel, je recommande de mettre
+à jour le design doc pour refléter la nouvelle architecture."
 
 ---
 
