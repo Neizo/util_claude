@@ -182,6 +182,8 @@ const phases = [
       { icon: "⚙️", name: "Installer deep-plan", detail: "/plugin marketplace add piercelamb/deep-plan\n/plugin install deep-plan\n/plugin enable deep-plan" },
       { icon: "⚙️", name: "Installer Vision Guard", detail: "mkdir -p ~/.claude/skills/vision-guard\ncp vision-guard-SKILL.md ~/.claude/skills/vision-guard/SKILL.md\n\nSkill custom — pas de plugin marketplace.\nIl se déclenche automatiquement quand\nune feature est planifiée ou prête à merge." },
       { icon: "⚙️", name: "Installer Vision Writer", detail: "mkdir -p ~/.claude/skills/vision-writer\ncp vision-writer-SKILL.md ~/.claude/skills/vision-writer/SKILL.md\n\nSkill custom — génère le planning/vision.md\npar interview structurée au démarrage\nd'un nouveau projet." },
+      { icon: "⚙️", name: "Installer Feature Splitter", detail: "mkdir -p ~/.claude/skills/feature-splitter\ncp feature-splitter-SKILL.md ~/.claude/skills/feature-splitter/SKILL.md\n\nSkill custom — découpe le design document\nen features priorisées et génère les\nfichiers spec automatiquement." },
+      { icon: "⚙️", name: "Installer CLAUDE.md Writer", detail: "mkdir -p ~/.claude/skills/claude-md-writer\ncp claude-md-writer-SKILL.md ~/.claude/skills/claude-md-writer/SKILL.md\n\nSkill custom — génère le CLAUDE.md\nà partir des documents produits\npar le workflow (vision + design + plan)." },
       { icon: "🔑", name: "Configurer les clés API", detail: 'export GEMINI_API_KEY="..."\nexport OPENAI_API_KEY="..."\n\nNécessaire pour les reviews multi-LLM de deep-plan' },
       { icon: "📁", name: "Init le repo", detail: "mkdir mon-projet && cd mon-projet && git init" },
     ],
@@ -194,15 +196,16 @@ const phases = [
       { icon: "📄", name: "planning/vision.md généré", detail: "Vision Writer génère le fichier structuré :\n\nplanning/vision.md\n├── Le produit (résumé + problème)\n├── Utilisateurs (profils + parcours)\n├── Fonctionnalités\n│   ├── MVP (V1)\n│   └── Hors scope V1 (futur)\n├── Contraintes (type, stack, intégrations)\n└── Principes\n\nTu relis, ajustes si besoin, puis valides.\nCommit : docs: initial project vision" },
       { icon: "💡", name: "Lancer le brainstorm", detail: "/brainstorm @planning/vision.md\n\nSuperpowers lit le vision.md et approfondit :\n→ Explore les approches d'architecture\n→ Propose 2-3 directions techniques\n→ Discussion des trade-offs\n→ Tu choisis la direction" },
       { icon: "📋", name: "Design document validé", detail: "Superpowers produit :\ndocs/plans/YYYY-MM-DD-project-vision-design.md\n\nContient : architecture choisie, stack,\ncomposants majeurs, flux de données,\nstratégie de test.\n\nC'est la traduction technique de ta vision." },
+      { icon: "🛑", name: "STOP — Ne pas enchaîner", detail: "⚠️ RÈGLE CRITIQUE ⚠️\n\nSuperpowers va proposer de lancer /write-plan\npuis /execute-plan. REFUSER.\n\nLe design doc décrit le projet ENTIER.\nIl faut d'abord le découper en features\net planifier chaque feature avec deep-plan.\n\nDire : \"Non, on passe au découpage en\nfeatures d'abord.\"\n\nCette règle est inscrite dans le CLAUDE.md\npour que Claude Code la respecte aussi." },
     ],
   },
   {
-    number: "02", title: "Découpage en features", subtitle: "Transformer la vision en specs actionnables",
-    accent: "#6BA3A3", who: "toi+superpowers",
+    number: "02", title: "Découpage en features", subtitle: "Feature Splitter — automatique",
+    accent: "#6BA3A3", who: "feature-splitter",
     steps: [
-      { icon: "✂️", name: "Identifier les features", detail: "À partir du design document, lister\ntoutes les features du projet :\n\nFeature 0 : Architecture de base & scaffolding\nFeature 1 : Authentification & gestion users\nFeature 2 : Gestion de projets (CRUD)\nFeature 3 : Suivi du temps\nFeature 4 : Facturation & paiement\nFeature 5 : Dashboard & analytics" },
-      { icon: "📊", name: "Prioriser", detail: "Organiser par dépendances et priorité :\n\n1. Archi de base (tout en dépend)\n2. Auth (nécessaire pour le reste)\n3. Gestion projets (cœur du produit)\n4. Suivi temps (dépend de projets)\n5. Facturation (dépend de projets + temps)\n6. Dashboard (dépend de tout)" },
-      { icon: "📝", name: "Rédiger les fichiers spec", detail: "Un fichier par feature :\n\nplanning/00-architecture-spec.md\nplanning/01-auth-spec.md\nplanning/02-projects-spec.md\nplanning/03-time-tracking-spec.md\n...\n\nChaque spec peut être courte (bullet points)\nou détaillée — deep-plan comblera les trous." },
+      { icon: "✂️", name: "Lancer Feature Splitter", detail: "Dire à Claude :\n\"Découpe le projet en features\"\n\nFeature Splitter lit automatiquement :\n→ planning/vision.md (scope IN/OUT)\n→ docs/plans/*-design.md (architecture)\n\nPuis identifie les features et leurs\ndépendances." },
+      { icon: "📊", name: "Tableau de découpage", detail: "Feature Splitter présente :\n\n#  Priorité  Feature              Dépend de\n─────────────────────────────────────────────\n0  🔴 BASE   Architecture         —\n1  🔴 HAUTE  Auth                 #0\n2  🔴 HAUTE  Feature core         #0\n3  🟡 MOY    Feature X            #1, #2\n4  🟢 BASSE  Feature Y            #3\n\nTu valides, réordonnes, fusionnes\nou déplaces en V2." },
+      { icon: "📝", name: "Fichiers spec générés", detail: "Après ta validation, Feature Splitter crée :\n\nplanning/00-architecture-spec.md\nplanning/01-auth-spec.md\nplanning/02-projects-spec.md\n...\n\nChaque spec contient :\n→ Description + contexte\n→ Dépendances\n→ Périmètre (inclus / exclus)\n→ Critères de validation\n→ Notes pour deep-plan\n\nCommit automatique." },
     ],
   },
   {
@@ -218,13 +221,13 @@ const phases = [
     ],
   },
   {
-    number: "04", title: "CLAUDE.md", subtitle: "Écrire le contrat — maintenant tu sais",
-    accent: "#B59B6B", who: "toi",
+    number: "04", title: "CLAUDE.md", subtitle: "CLAUDE.md Writer — automatique",
+    accent: "#B59B6B", who: "claude-md-writer",
     steps: [
-      { icon: "🧠", name: "Pourquoi maintenant ?", detail: "Avant deep-plan, tu ne savais pas encore :\n→ Quelle stack exacte\n→ Quelles conventions\n→ Quelle structure de dossiers\n→ Quels outils de test/lint/build\n\nMaintenant que le plan d'archi est validé,\ntu as toutes les infos pour écrire le CLAUDE.md." },
-      { icon: "📋", name: "Règles de workflow", detail: "Quand utiliser /deep-plan vs /brainstorm :\n→ Feature complexe → /deep-plan\n→ Feature simple → /brainstorm\n→ Bug fix → direct Superpowers\n\nRègle de handoff :\n→ deep-plan planifie\n→ Tu valides\n→ Superpowers exécute" },
-      { icon: "🏗️", name: "Conventions du projet", detail: "Issues du plan d'archi validé :\n→ Stack : Next.js 15, PostgreSQL, Prisma...\n→ Structure : src/features/<feature>/\n→ Nommage : kebab-case fichiers, PascalCase composants\n→ Tests : Vitest, dossier __tests__/\n→ Commits : Conventional Commits\n→ Commandes : npm run dev/test/build/lint" },
-      { icon: "🚫", name: "Interdictions", detail: "→ Pas de code sans plan validé\n→ Pas de brainstorm Superpowers si\n  deep-plan est déjà actif\n→ Pas de nouvelle dépendance sans justification\n→ Pas de modification hors scope de la feature" },
+      { icon: "🧠", name: "Pourquoi maintenant ?", detail: "Avant deep-plan, tu ne savais pas encore :\n→ Quelle stack exacte\n→ Quelles conventions\n→ Quelle structure de dossiers\n→ Quels outils de test/lint/build\n\nMaintenant que le plan d'archi est validé,\ntu as toutes les infos pour le CLAUDE.md." },
+      { icon: "🤖", name: "Lancer CLAUDE.md Writer", detail: "Dire à Claude :\n\"Génère le CLAUDE.md\"\n\nCLAUDE.md Writer lit automatiquement :\n→ planning/vision.md (scope IN/OUT)\n→ docs/plans/*-design.md (stack, archi)\n→ planning/claude-plan.md (conventions)\n\nPuis extrait toutes les infos pour\ngénérer le fichier." },
+      { icon: "❓", name: "Questions complémentaires", detail: "Si des infos manquent dans les documents,\nCLAUDE.md Writer pose les questions :\n\n→ Convention de nommage des fichiers ?\n→ Convention de commit ?\n→ Couverture de test minimale ?\n→ Outil de déploiement ?\n\nUne question à la fois, comme Vision Writer." },
+      { icon: "📄", name: "CLAUDE.md généré", detail: "Le fichier contient automatiquement :\n\n→ Stack technique complète\n→ Structure du projet\n→ Commandes (dev/build/test/lint)\n→ Conventions (nommage, git, tests)\n→ Workflow (quand utiliser quel skill)\n→ Règle d'arrêt post-brainstorm\n→ Interdictions\n→ Scope IN/OUT (copié du vision.md)\n\nTu relis, ajustes si besoin, puis valides.\nCommit automatique." },
     ],
   },
   {
@@ -268,6 +271,8 @@ const whoConfig = {
   boucle:            { text: "BOUCLE",             bg: "#7B8FB520", border: "#7B8FB550", color: "#A0B8E0" },
   "vision-guard":    { text: "VISION GUARD",       bg: "#4A906020", border: "#4A906050", color: "#7BD4A0" },
   "vision-writer":   { text: "VISION WRITER",      bg: "#D4885020", border: "#D4885050", color: "#F0B880" },
+  "feature-splitter":{ text: "FEATURE SPLITTER",   bg: "#6BA3A320", border: "#6BA3A350", color: "#A0D0D0" },
+  "claude-md-writer":{ text: "CLAUDE.MD WRITER",   bg: "#B59B6B20", border: "#B59B6B50", color: "#E0C88A" },
 };
 
 // Render timeline
@@ -348,9 +353,11 @@ phases.forEach((phase, i) => {
 
 // Legend
 const legendData = [
-  { who: "superpowers", label: "Superpowers" },
-  { who: "deep-plan", label: "Deep-plan" },
   { who: "vision-writer", label: "Vision Writer" },
+  { who: "superpowers", label: "Superpowers" },
+  { who: "feature-splitter", label: "Feature Splitter" },
+  { who: "deep-plan", label: "Deep-plan" },
+  { who: "claude-md-writer", label: "CLAUDE.md Writer" },
   { who: "vision-guard", label: "Vision Guard" },
   { who: "toi", label: "Toi" },
   { who: "boucle", label: "Boucle" },
@@ -369,8 +376,9 @@ const summaryEl = document.getElementById("summary");
 const summarySteps = [
   { bg: "#D4885020", border: "#D4885040", color: "#F0B880", text: "Vision Writer\ncapture l'idée" },
   { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\ncadre l'archi" },
-  { bg: "#6BA3A320", border: "#6BA3A340", color: "#A0D0D0", text: "Tu découpes\nen features" },
+  { bg: "#6BA3A320", border: "#6BA3A340", color: "#A0D0D0", text: "Feature Splitter\ndécoupe" },
   { bg: "#9B7BB520", border: "#9B7BB540", color: "#C4A0E0", text: "Deep-plan\nplanifie" },
+  { bg: "#B59B6B20", border: "#B59B6B40", color: "#E0C88A", text: "CLAUDE.md\nWriter" },
   { bg: "#B57B7B20", border: "#B57B7B40", color: "#E0A0A0", text: "Tu valides" },
   { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\nexécute" },
   { bg: "#4A906020", border: "#4A906040", color: "#7BD4A0", text: "Vision Guard\nvérifie" },
@@ -395,7 +403,7 @@ schemaEl.innerHTML = `
       Architecture des skills
     </div>
     <h2 style="font-size:clamp(22px,4vw,32px);font-weight:400;line-height:1.2;margin:0 0 8px;color:#F5F0E8;letter-spacing:-0.3px;">
-      Comment les 4 skills<br><span style="font-style:italic;color:#C4A97D;">s'articulent ensemble</span>
+      Comment les 6 skills<br><span style="font-style:italic;color:#C4A97D;">s'articulent ensemble</span>
     </h2>
     <p style="font-size:14px;color:#777;margin:0 0 40px;line-height:1.6;">
       Chaque skill a un rôle unique. Aucun ne se chevauche. Vision Guard surveille en continu.
@@ -404,8 +412,8 @@ schemaEl.innerHTML = `
     <!-- Main diagram -->
     <div style="position:relative;">
 
-      <!-- The 4 skill boxes -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+      <!-- The 6 skill boxes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;">
 
         <!-- Vision Writer -->
         <div style="background:#1F1F1F;border:1px solid #D4885040;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
@@ -413,22 +421,42 @@ schemaEl.innerHTML = `
           <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#D4885020;border:1px solid #D4885050;color:#F0B880;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Vision Writer</div>
           <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">L'accoucheur</div>
           <div style="font-size:12px;color:#999;line-height:1.6;">
-            <div style="margin-bottom:6px;">
-              <span style="color:#D48850;">▸</span> Interview guidée (~12 questions)
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#D48850;">▸</span> Génère planning/vision.md
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#D48850;">▸</span> Cadre MVP vs futur
-            </div>
-            <div>
-              <span style="color:#D48850;">▸</span> Référence pour Vision Guard
-            </div>
+            <div style="margin-bottom:4px;"><span style="color:#D48850;">▸</span> Interview guidée (8 dimensions)</div>
+            <div style="margin-bottom:4px;"><span style="color:#D48850;">▸</span> Génère planning/vision.md</div>
+            <div><span style="color:#D48850;">▸</span> Référence pour tous les skills</div>
           </div>
-          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
-            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
-            <div style="font-size:11px;color:#F0B880;margin-top:4px;">Phase 01 — une seule fois au démarrage</div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 01 · une seule fois</div>
+          </div>
+        </div>
+
+        <!-- Feature Splitter -->
+        <div style="background:#1F1F1F;border:1px solid #6BA3A340;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#6BA3A3,#A0D0D0);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#6BA3A320;border:1px solid #6BA3A350;color:#A0D0D0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Feature Splitter</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le découpeur</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:4px;"><span style="color:#6BA3A3;">▸</span> Découpe le design en features</div>
+            <div style="margin-bottom:4px;"><span style="color:#6BA3A3;">▸</span> Priorise par dépendances</div>
+            <div><span style="color:#6BA3A3;">▸</span> Génère les fichiers spec</div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 02 · une seule fois</div>
+          </div>
+        </div>
+
+        <!-- CLAUDE.md Writer -->
+        <div style="background:#1F1F1F;border:1px solid #B59B6B40;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#B59B6B,#E0C88A);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#B59B6B20;border:1px solid #B59B6B50;color:#E0C88A;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">CLAUDE.md Writer</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le contracteur</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:4px;"><span style="color:#B59B6B;">▸</span> Extrait stack + conventions</div>
+            <div style="margin-bottom:4px;"><span style="color:#B59B6B;">▸</span> Inscrit la règle d'arrêt</div>
+            <div><span style="color:#B59B6B;">▸</span> Génère le CLAUDE.md complet</div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 04 · une seule fois</div>
           </div>
         </div>
 
@@ -438,25 +466,12 @@ schemaEl.innerHTML = `
           <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#B5A47B20;border:1px solid #B5A47B50;color:#E0D0A0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Superpowers</div>
           <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">L'exécutant</div>
           <div style="font-size:12px;color:#999;line-height:1.6;">
-            <div style="margin-bottom:6px;">
-              <span style="color:#B5A47B;">▸</span> Cadre la vision globale
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#B5A47B;">▸</span> Découpe en micro-tâches
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#B5A47B;">▸</span> Exécute avec sous-agents
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#B5A47B;">▸</span> Impose le TDD strict
-            </div>
-            <div>
-              <span style="color:#B5A47B;">▸</span> Code review automatique
-            </div>
+            <div style="margin-bottom:4px;"><span style="color:#B5A47B;">▸</span> Brainstorm technique</div>
+            <div style="margin-bottom:4px;"><span style="color:#B5A47B;">▸</span> Micro-tâches + sous-agents</div>
+            <div><span style="color:#B5A47B;">▸</span> TDD strict + code review</div>
           </div>
-          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
-            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
-            <div style="font-size:11px;color:#B5A47B;margin-top:4px;">Phase 01 + 06 + features simples</div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 01 + 06 · récurrent</div>
           </div>
         </div>
 
@@ -466,25 +481,12 @@ schemaEl.innerHTML = `
           <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#9B7BB520;border:1px solid #9B7BB550;color:#C4A0E0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Deep-plan</div>
           <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le planificateur</div>
           <div style="font-size:12px;color:#999;line-height:1.6;">
-            <div style="margin-bottom:6px;">
-              <span style="color:#9B7BB5;">▸</span> Recherche web + codebase
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#9B7BB5;">▸</span> Interview structurée
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#9B7BB5;">▸</span> Review par Gemini + OpenAI
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#9B7BB5;">▸</span> Plan détaillé + stubs TDD
-            </div>
-            <div>
-              <span style="color:#9B7BB5;">▸</span> Sections parallélisables
-            </div>
+            <div style="margin-bottom:4px;"><span style="color:#9B7BB5;">▸</span> Recherche + interview</div>
+            <div style="margin-bottom:4px;"><span style="color:#9B7BB5;">▸</span> Review Gemini + OpenAI</div>
+            <div><span style="color:#9B7BB5;">▸</span> Sections parallélisables</div>
           </div>
-          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
-            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
-            <div style="font-size:11px;color:#C4A0E0;margin-top:4px;">Phase 03 — features complexes</div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 03 · par feature</div>
           </div>
         </div>
 
@@ -494,25 +496,12 @@ schemaEl.innerHTML = `
           <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#4A906020;border:1px solid #4A906050;color:#7BD4A0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Vision Guard</div>
           <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le gardien</div>
           <div style="font-size:12px;color:#999;line-height:1.6;">
-            <div style="margin-bottom:6px;">
-              <span style="color:#4A9060;">▸</span> Vérifie l'alignement vision
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#4A9060;">▸</span> Détecte le scope creep
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#4A9060;">▸</span> Analyse les diffs avant merge
-            </div>
-            <div style="margin-bottom:6px;">
-              <span style="color:#4A9060;">▸</span> Audit global périodique
-            </div>
-            <div>
-              <span style="color:#4A9060;">▸</span> Suggère de MAJ la vision
-            </div>
+            <div style="margin-bottom:4px;"><span style="color:#4A9060;">▸</span> Vérifie alignement vision</div>
+            <div style="margin-bottom:4px;"><span style="color:#4A9060;">▸</span> Détecte scope creep</div>
+            <div><span style="color:#4A9060;">▸</span> Audit global périodique</div>
           </div>
-          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
-            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
-            <div style="font-size:11px;color:#7BD4A0;margin-top:4px;">Phase 03 + 06 + audit (phase 07)</div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;">PHASE 03 + 06 + 07 · continu</div>
           </div>
         </div>
       </div>
@@ -537,6 +526,36 @@ schemaEl.innerHTML = `
               🎤 Vision Writer — interview
             </div>
             <div style="font-size:11px;color:#555;max-width:180px;">Génère planning/vision.md</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 0b: Brainstorm -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#B5A47B12;border:1px solid #B5A47B35;border-radius:8px;padding:8px 18px;font-size:12px;color:#E0D0A0;font-family:'Courier New',monospace;">
+              ⚡ Superpowers — /brainstorm
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Architecture globale</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 0c: STOP -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#B5474712;border:1px solid #B5474735;border-radius:8px;padding:8px 18px;font-size:12px;color:#E08080;font-family:'Courier New',monospace;">
+              🛑 STOP — ne pas enchaîner
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Refuser /write-plan ici</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 0d: Feature Splitter -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#6BA3A312;border:1px solid #6BA3A335;border-radius:8px;padding:8px 18px;font-size:12px;color:#A0D0D0;font-family:'Courier New',monospace;">
+              ✂️ Feature Splitter — découpage
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Specs par feature</div>
           </div>
 
           <div style="color:#555;font-size:14px;">↓</div>
@@ -571,6 +590,16 @@ schemaEl.innerHTML = `
               🔬 Deep-plan — planification
             </div>
             <div style="font-size:11px;color:#555;max-width:180px;">Recherche + Interview + Review multi-LLM</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 3b: CLAUDE.md Writer (only Feature 0) -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#B59B6B12;border:1px solid #B59B6B35;border-radius:8px;padding:8px 18px;font-size:12px;color:#E0C88A;font-family:'Courier New',monospace;">
+              📋 CLAUDE.md Writer
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Feature 0 uniquement</div>
           </div>
 
           <div style="color:#555;font-size:14px;">↓</div>
@@ -623,26 +652,36 @@ schemaEl.innerHTML = `
       </div>
 
       <!-- Roles summary -->
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px;">
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #D4885020;">
           <div style="font-size:20px;margin-bottom:4px;">🎤</div>
           <div style="font-size:11px;color:#F0B880;font-weight:600;">CADRE</div>
-          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">vision · scope · MVP</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">Vision Writer</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #6BA3A320;">
+          <div style="font-size:20px;margin-bottom:4px;">✂️</div>
+          <div style="font-size:11px;color:#A0D0D0;font-weight:600;">DÉCOUPE</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">Feature Splitter</div>
         </div>
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #9B7BB520;">
           <div style="font-size:20px;margin-bottom:4px;">🔬</div>
           <div style="font-size:11px;color:#C4A0E0;font-weight:600;">PENSE</div>
-          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">recherche · interview · review</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">Deep-plan</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #B59B6B20;">
+          <div style="font-size:20px;margin-bottom:4px;">📋</div>
+          <div style="font-size:11px;color:#E0C88A;font-weight:600;">CONTRACTE</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">CLAUDE.md Writer</div>
         </div>
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #B5A47B20;">
           <div style="font-size:20px;margin-bottom:4px;">⚡</div>
-          <div style="font-size:11px;color:#B5A47B;font-weight:600;">FAIT</div>
-          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">brainstorm · plan · code</div>
+          <div style="font-size:11px;color:#E0D0A0;font-weight:600;">FAIT</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">Superpowers</div>
         </div>
         <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #4A906020;">
           <div style="font-size:20px;margin-bottom:4px;">🛡️</div>
           <div style="font-size:11px;color:#7BD4A0;font-weight:600;">SURVEILLE</div>
-          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">cohérence · dérive · scope</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">Vision Guard</div>
         </div>
       </div>
 

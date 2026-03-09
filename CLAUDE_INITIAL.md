@@ -66,3 +66,20 @@ Quand tu utilises un skill, annonce-le explicitement : 'J'utilise [nom du skill]
 | `/write-plan` | Transformer un design validé en tâches |
 | `/execute-plan` | Exécuter les tâches via sous-agents |
 | `/compact` | Toujours faire avant /deep-plan (gros contexte) |
+
+## RÈGLE CRITIQUE — Arrêt après brainstorm
+
+Quand /brainstorm produit un design document pour un NOUVEAU PROJET 
+(pas une feature isolée), le workflow DOIT s'arrêter ici.
+
+NE PAS enchaîner avec /write-plan ou /execute-plan.
+
+À la place, dire au développeur :
+"Le design document est prêt. La prochaine étape est de découper 
+le projet en features et de rédiger un fichier spec par feature 
+dans planning/ possibilité d'utiliser le skill /feature-splitter. Ensuite on utilisera /deep-plan sur chaque feature 
+avant d'implémenter."
+
+Cette règle ne s'applique PAS aux features simples lancées 
+directement avec /brainstorm dans un projet existant — dans ce cas, 
+le pipeline normal Superpowers continue.
