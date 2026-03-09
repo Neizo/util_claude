@@ -54,6 +54,9 @@ Si tu hésites entre les deux workflows, demande au développeur :
 avec /deep-plan (recherche + interview + review multi-LLM), ou on part sur un 
 brainstorming rapide avec Superpowers ?"
 
+### Règle 5 : Donner des informations
+Quand tu utilises un skill, annonce-le explicitement : 'J'utilise [nom du skill] pour [raison]
+
 ## Commandes de référence
 
 | Commande | Quand l'utiliser |
