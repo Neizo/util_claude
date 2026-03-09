@@ -170,6 +170,8 @@
 
 <div class="container" style="margin-top: 24px;" id="summary"></div>
 
+<div class="container" style="margin-top: 56px;" id="schema"></div>
+
 <script>
 const phases = [
   {
@@ -178,6 +180,7 @@ const phases = [
     steps: [
       { icon: "⚙️", name: "Installer Superpowers", detail: "/plugin marketplace add obra/superpowers-marketplace\n/plugin install superpowers@superpowers-marketplace" },
       { icon: "⚙️", name: "Installer deep-plan", detail: "/plugin marketplace add piercelamb/deep-plan\n/plugin install deep-plan\n/plugin enable deep-plan" },
+      { icon: "⚙️", name: "Installer Vision Guard", detail: "mkdir -p ~/.claude/skills/vision-guard\ncp vision-guard-SKILL.md ~/.claude/skills/vision-guard/SKILL.md\n\nSkill custom — pas de plugin marketplace.\nIl se déclenche automatiquement quand\nune feature est planifiée ou prête à merge." },
       { icon: "🔑", name: "Configurer les clés API", detail: 'export GEMINI_API_KEY="..."\nexport OPENAI_API_KEY="..."\n\nNécessaire pour les reviews multi-LLM de deep-plan' },
       { icon: "📁", name: "Init le repo", detail: "mkdir mon-projet && cd mon-projet && git init" },
     ],
@@ -205,6 +208,7 @@ const phases = [
     number: "03", title: "/deep-plan — Feature 0", subtitle: "L'architecture de base en premier",
     accent: "#9B7BB5", who: "deep-plan",
     steps: [
+      { icon: "🛡️", name: "Vision Guard — pré-feature", detail: "Avant de lancer deep-plan, Vision Guard vérifie\nque la feature est alignée avec la vision :\n\n→ Lit planning/vision.md + design document\n→ Compare avec la spec de la feature\n→ Produit un rapport : 🟢 Alignée / 🟡 Dérive / 🔴 Hors scope\n\nSi 🔴 : te demande si tu veux continuer\nquand même (la vision peut évoluer).\nSi 🟡 : signale les éléments qui dépassent.\nSi 🟢 : feu vert, on continue.\n\n(Se déclenche automatiquement à partir\nde la feature 1 — pas pour la feature 0\nqui EST l'architecture de base)" },
       { icon: "🚀", name: "Lancer deep-plan", detail: "/compact\n/deep-plan @planning/00-architecture-spec.md\n\n/compact avant car deep-plan consomme\nbeaucoup de tokens" },
       { icon: "🔍", name: "Recherche", detail: "Deep-plan recherche les bonnes pratiques :\n→ Structure de projet recommandée\n→ Config TypeScript / ESLint / Prettier\n→ Patterns d'architecture pour la stack choisie\n→ Setup de la CI/CD" },
       { icon: "🎤", name: "Interview", detail: "5-10 questions ciblées sur l'archi :\n→ Monorepo ou polyrepo ?\n→ ORM : Prisma, Drizzle, TypeORM ?\n→ Stratégie de déploiement ?\n→ Gestion des env (dev/staging/prod) ?\n→ Convention de commit ?" },
@@ -239,6 +243,7 @@ const phases = [
       { icon: "🌿", name: "Git Worktree", detail: "Superpowers crée une branche isolée.\nLe main reste vierge pendant le dev.\nChaque feature aura son propre worktree." },
       { icon: "📐", name: "/write-plan", detail: "Les sections de deep-plan sont découpées\nen micro-tâches de 2-5 min :\n\n→ Tâche 1 : Créer le test pour le setup DB\n→ Tâche 2 : Implémenter la connexion DB\n→ Tâche 3 : Créer le test pour le premier modèle\n→ ...\n\nChaque tâche = fichiers exacts + code + vérification" },
       { icon: "🚀", name: "/execute-plan", detail: "Un sous-agent frais par tâche :\n\n1. Test rouge (doit échouer)\n2. Code minimal (fait passer le test)\n3. Test vert (vérifié)\n4. Commit\n5. Code review automatique\n6. Tâche suivante...\n\nTDD strict à chaque étape." },
+      { icon: "🛡️", name: "Vision Guard — post-feature", detail: "Avant de merge, Vision Guard analyse les\nchangements de la branche :\n\n→ git diff main pour lister les modifications\n→ Compare avec la spec et la vision\n→ Détecte : dépendances non prévues,\n  fichiers hors scope, features bonus\n  non demandées, endpoints non planifiés\n\nRapport : 🟢 / 🟡 / 🔴\nSi dérive détectée, propose de recentrer\navant le merge." },
       { icon: "🔍", name: "Review & merge", detail: "→ requesting-code-review valide le tout\n→ finishing-branch propose :\n   • Merge dans main\n   • Créer une PR\n   • Garder la branche\n   • Abandonner\n→ Worktree nettoyé" },
     ],
   },
@@ -248,6 +253,7 @@ const phases = [
     steps: [
       { icon: "🔄", name: "Reprendre à la phase 03", detail: "/compact\n/deep-plan @planning/01-auth-spec.md\n\n→ Recherche + Interview + Reviews\n→ Validation humaine\n→ Exécution Superpowers\n→ Merge\n\nPuis feature 02, 03, 04..." },
       { icon: "💡", name: "Quand utiliser /brainstorm plutôt", detail: "Pour les features simples :\n→ Pas besoin de recherche web\n→ Exigences déjà claires\n→ 1-3 fichiers impactés\n\nDans ce cas, sauter deep-plan :\n/brainstorm → /write-plan → /execute-plan" },
+      { icon: "🛡️", name: "Audit global — toutes les 3-5 features", detail: "Demander un audit Vision Guard complet :\n\"Fais un audit de cohérence du projet\"\n\nVision Guard produit un rapport global :\n→ Score d'alignement /10\n→ Features alignées (🟢)\n→ Dérives détectées (🟡 🔴)\n→ Ce qui était prévu mais pas encore fait\n→ Tendance générale du projet\n→ Recommandations pour recentrer\n\nSi la vision a évolué intentionnellement,\nc'est le bon moment pour mettre à jour\nplanning/vision.md." },
       { icon: "📝", name: "CLAUDE.md — seulement si nécessaire", detail: "Le CLAUDE.md n'est PAS réécrit à chaque feature.\nIl a été créé une fois à la phase 04.\n\nAjouter une ligne uniquement si :\n→ Un nouveau pattern émerge\n   ex: \"pagination: cursor-based\"\n→ Une nouvelle convention est décidée\n   ex: \"webhooks: toujours vérifier signature\"\n→ Claude fait une erreur récurrente\n   ex: \"ne jamais utiliser any en TypeScript\"\n\nLa plupart des features ne changeront\nrien au CLAUDE.md." },
     ],
   },
@@ -259,6 +265,7 @@ const whoConfig = {
   "deep-plan":       { text: "DEEP-PLAN",          bg: "#9B7BB520", border: "#9B7BB550", color: "#C4A0E0" },
   "toi+superpowers": { text: "TOI + SUPERPOWERS",  bg: "#6BA3A320", border: "#6BA3A350", color: "#A0D0D0" },
   boucle:            { text: "BOUCLE",             bg: "#7B8FB520", border: "#7B8FB550", color: "#A0B8E0" },
+  "vision-guard":    { text: "VISION GUARD",       bg: "#4A906020", border: "#4A906050", color: "#7BD4A0" },
 };
 
 // Render timeline
@@ -342,6 +349,7 @@ const legendData = [
   { who: "superpowers", label: "Superpowers" },
   { who: "deep-plan", label: "Deep-plan" },
   { who: "toi", label: "Toi" },
+  { who: "vision-guard", label: "Vision Guard" },
   { who: "boucle", label: "Boucle" },
 ];
 const legend = document.getElementById("legend");
@@ -361,6 +369,7 @@ const summarySteps = [
   { bg: "#9B7BB520", border: "#9B7BB540", color: "#C4A0E0", text: "Deep-plan\nplanifie" },
   { bg: "#B57B7B20", border: "#B57B7B40", color: "#E0A0A0", text: "Tu valides" },
   { bg: "#B5A47B20", border: "#B5A47B40", color: "#E0D0A0", text: "Superpowers\nexécute" },
+  { bg: "#4A906020", border: "#4A906040", color: "#7BD4A0", text: "Vision Guard\nvérifie" },
 ];
 summaryEl.innerHTML = `
   <div class="summary">
@@ -370,6 +379,219 @@ summaryEl.innerHTML = `
         <span class="summary-step" style="background:${s.bg};border:1px solid ${s.border};color:${s.color}">${s.text}</span>
         ${i < summarySteps.length - 1 ? '<span class="summary-arrow">→</span>' : ''}
       `).join("")}
+    </div>
+  </div>
+`;
+
+// Schema — Articulation des 3 skills
+const schemaEl = document.getElementById("schema");
+schemaEl.innerHTML = `
+  <div style="border-top: 1px solid #333; padding-top: 48px;">
+    <div style="font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#888;margin-bottom:12px;font-family:'Courier New',monospace;">
+      Architecture des skills
+    </div>
+    <h2 style="font-size:clamp(22px,4vw,32px);font-weight:400;line-height:1.2;margin:0 0 8px;color:#F5F0E8;letter-spacing:-0.3px;">
+      Comment les 3 skills<br><span style="font-style:italic;color:#C4A97D;">s'articulent ensemble</span>
+    </h2>
+    <p style="font-size:14px;color:#777;margin:0 0 40px;line-height:1.6;">
+      Chaque skill a un rôle unique. Aucun ne se chevauche. Vision Guard surveille en continu.
+    </p>
+
+    <!-- Main diagram -->
+    <div style="position:relative;">
+
+      <!-- The 3 skill boxes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;">
+
+        <!-- Superpowers -->
+        <div style="background:#1F1F1F;border:1px solid #B5A47B40;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#B5A47B,#E0D0A0);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#B5A47B20;border:1px solid #B5A47B50;color:#E0D0A0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Superpowers</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">L'exécutant</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:6px;">
+              <span style="color:#B5A47B;">▸</span> Cadre la vision globale
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#B5A47B;">▸</span> Découpe en micro-tâches
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#B5A47B;">▸</span> Exécute avec sous-agents
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#B5A47B;">▸</span> Impose le TDD strict
+            </div>
+            <div>
+              <span style="color:#B5A47B;">▸</span> Code review automatique
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
+            <div style="font-size:11px;color:#B5A47B;margin-top:4px;">Phase 01 + 06 + features simples</div>
+          </div>
+        </div>
+
+        <!-- Deep-plan -->
+        <div style="background:#1F1F1F;border:1px solid #9B7BB540;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#9B7BB5,#C4A0E0);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#9B7BB520;border:1px solid #9B7BB550;color:#C4A0E0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Deep-plan</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le planificateur</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:6px;">
+              <span style="color:#9B7BB5;">▸</span> Recherche web + codebase
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#9B7BB5;">▸</span> Interview structurée
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#9B7BB5;">▸</span> Review par Gemini + OpenAI
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#9B7BB5;">▸</span> Plan détaillé + stubs TDD
+            </div>
+            <div>
+              <span style="color:#9B7BB5;">▸</span> Sections parallélisables
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
+            <div style="font-size:11px;color:#C4A0E0;margin-top:4px;">Phase 03 — features complexes</div>
+          </div>
+        </div>
+
+        <!-- Vision Guard -->
+        <div style="background:#1F1F1F;border:1px solid #4A906040;border-radius:12px;padding:20px;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#4A9060,#7BD4A0);border-radius:12px 12px 0 0;"></div>
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px;background:#4A906020;border:1px solid #4A906050;color:#7BD4A0;font-family:'Courier New',monospace;font-weight:700;display:inline-block;margin-bottom:12px;">Vision Guard</div>
+          <div style="font-size:16px;font-weight:600;color:#F0ECE4;margin-bottom:8px;">Le gardien</div>
+          <div style="font-size:12px;color:#999;line-height:1.6;">
+            <div style="margin-bottom:6px;">
+              <span style="color:#4A9060;">▸</span> Vérifie l'alignement vision
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#4A9060;">▸</span> Détecte le scope creep
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#4A9060;">▸</span> Analyse les diffs avant merge
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#4A9060;">▸</span> Audit global périodique
+            </div>
+            <div>
+              <span style="color:#4A9060;">▸</span> Suggère de MAJ la vision
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid #333;">
+            <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:0.5px;">QUAND</div>
+            <div style="font-size:11px;color:#7BD4A0;margin-top:4px;">Phase 03 + 06 + audit (phase 07)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flow diagram -->
+      <div style="background:#1F1F1F;border:1px solid #333;border-radius:12px;padding:28px 24px;position:relative;overflow:hidden;">
+        <div style="font-size:10px;color:#666;font-family:'Courier New',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;text-align:center;">
+          Cycle d'une feature
+        </div>
+
+        <!-- Flow rows -->
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+
+          <!-- Row 1: Spec -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#333;border-radius:8px;padding:8px 18px;font-size:12px;color:#CCC;font-family:'Courier New',monospace;">
+              📝 Spec rédigée
+            </div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 2: Vision Guard pre -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#4A906012;border:1px solid #4A906035;border-radius:8px;padding:8px 18px;font-size:12px;color:#7BD4A0;font-family:'Courier New',monospace;">
+              🛡️ Vision Guard — pré-feature
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Alignée avec la vision ?</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓ <span style="font-size:10px;color:#4A9060;">🟢</span></div>
+
+          <!-- Row 3: Deep-plan -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#9B7BB512;border:1px solid #9B7BB535;border-radius:8px;padding:8px 18px;font-size:12px;color:#C4A0E0;font-family:'Courier New',monospace;">
+              🔬 Deep-plan — planification
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Recherche + Interview + Review multi-LLM</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 4: Toi -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#B57B7B12;border:1px solid #B57B7B35;border-radius:8px;padding:8px 18px;font-size:12px;color:#E0A0A0;font-family:'Courier New',monospace;">
+              ✅ Toi — validation humaine
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Feu vert explicite obligatoire</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 5: Superpowers -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#B5A47B12;border:1px solid #B5A47B35;border-radius:8px;padding:8px 18px;font-size:12px;color:#E0D0A0;font-family:'Courier New',monospace;">
+              ⚡ Superpowers — exécution TDD
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Sous-agents + tests + code review</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓</div>
+
+          <!-- Row 6: Vision Guard post -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#4A906012;border:1px solid #4A906035;border-radius:8px;padding:8px 18px;font-size:12px;color:#7BD4A0;font-family:'Courier New',monospace;">
+              🛡️ Vision Guard — post-feature
+            </div>
+            <div style="font-size:11px;color:#555;max-width:180px;">Dérives dans le diff ?</div>
+          </div>
+
+          <div style="color:#555;font-size:14px;">↓ <span style="font-size:10px;color:#4A9060;">🟢</span></div>
+
+          <!-- Row 7: Merge -->
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="background:#333;border-radius:8px;padding:8px 18px;font-size:12px;color:#CCC;font-family:'Courier New',monospace;">
+              🔀 Merge / PR
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit sidebar -->
+        <div style="position:absolute;top:28px;right:24px;bottom:28px;display:flex;flex-direction:column;align-items:center;">
+          <div style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#4A906060;font-family:'Courier New',monospace;flex:1;display:flex;align-items:center;">
+            Audit global toutes les 3-5 features
+          </div>
+          <div style="width:1px;height:100%;background:linear-gradient(to bottom,transparent,#4A906040,transparent);position:absolute;right:0;top:0;"></div>
+        </div>
+      </div>
+
+      <!-- Roles summary -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px;">
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #B5A47B20;">
+          <div style="font-size:20px;margin-bottom:4px;">⚡</div>
+          <div style="font-size:11px;color:#B5A47B;font-weight:600;">FAIT</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">brainstorm · plan · code</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #9B7BB520;">
+          <div style="font-size:20px;margin-bottom:4px;">🔬</div>
+          <div style="font-size:11px;color:#C4A0E0;font-weight:600;">PENSE</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">recherche · interview · review</div>
+        </div>
+        <div style="text-align:center;padding:14px;background:#1F1F1F;border-radius:8px;border:1px solid #4A906020;">
+          <div style="font-size:20px;margin-bottom:4px;">🛡️</div>
+          <div style="font-size:11px;color:#7BD4A0;font-weight:600;">SURVEILLE</div>
+          <div style="font-size:10px;color:#777;margin-top:2px;font-family:'Courier New',monospace;">cohérence · dérive · scope</div>
+        </div>
+      </div>
+
     </div>
   </div>
 `;
