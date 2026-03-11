@@ -1,0 +1,15 @@
+1) Commencer par un document de cadrage détaillé (en précisant a l'intérieur si on est sur un projet de R&D/POC ou l'arbitrage humain est necessaire pour définir si une tache est terminée, ou un projet avec des taches reelement fini)
+2) dire a claude a qu'on vas commencer un nouveau projet de developpement et lui donner le document texte en demandant d'examiner si il y'a des zones flou et et de poser des questions et d'ajouter les réponses dans le documents 
+3) Demander a Claude de découper ce projet en features et chaque features en sous tache, et de prioriser ces étapes
+	Puis de créer un repertoire planning avec un dossier par features et un fichier spec.md pour chacun de ses dossier, ensuite d'écrire les fichiers spec.md de chaque features en indiquant l'objectif de la feature, les stack technique a utilisé ainsi que les sous taches priorisé de cette feature
+	En projet R&D/POC créer un sous repertoire "ideas" a la features pour renseigner les différentes hypothèse a explorer
+4) Générer les fichiers markdown utile 
+		Génère les fichiers markdown du projet (CLAUDE.md, PROGRESS.md, planning/NN_{FEATURES-NAME}/spec.md, ARCHITECTURE.md, CONVENTIONS.md) à partir du cadrage fourni.
+		Tu trouveras les modèles dans templates/{FICHIER}.md
+		Contraintes :
+		- adapte chaque fichier au projet réel, ne recopie pas un modèle générique sans adaptation ;
+		- garde chaque fichier court et utile ;
+		- n’invente pas d’architecture complexe sans justification ;
+		- pour un projet R&D/POC, privilégie hypothèses, protocole, sorties observables et verdicts ;
+		- pour un projet classique, privilégie sous-tâches, critères d’acceptation et état d’avancement ;
+		- si une information manque, laisse une section courte "À préciser" au lieu d’inventer.

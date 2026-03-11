@@ -1,0 +1,23 @@
+## Objectif
+Le projet est en phase d’exploration. La priorité est la vitesse de test, la clarté des variantes, et la comparabilité des résultats.
+
+## Règles
+- Une expérience = un objectif clair
+- Une expérience doit produire des sorties observables
+- Toute variante doit être comparable à une baseline
+- Les outputs doivent être rangés dans un dossier dédié
+- Les scripts d’expérimentation doivent être simples à relancer
+- Ne pas refactorer massivement tant qu’une piste n’est pas validée
+
+## Nommage
+- `EXP-001`, `EXP-002`, etc.
+- dossiers de sortie alignés sur les identifiants d’expérience
+- fonctions et scripts nommés selon l’approche testée
+
+## Documentation minimale
+Chaque expérience doit préciser :
+- hypothèse
+- protocole
+- sorties
+- observation
+- verdict

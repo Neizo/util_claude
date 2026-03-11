@@ -1,0 +1,16 @@
+Lis `CLAUDE.md`, `PROGRESS.md` et la tâche `planning/NN_{FEATURES-NAME}/spec.md`.
+
+Nous sommes en phase de recherche / POC. Je ne veux pas une industrialisation prématurée.
+Je veux un prototype minimal testable, des sorties observables, puis une mise à jour claire de `PROGRESS.md`.
+
+Avant de coder :
+1. résume l’objectif,
+2. rappelle l’hypothèse,
+3. propose un plan d’exécution minimal.
+
+Ensuite :
+- implémente,
+- génère les sorties nécessaires à la comparaison,
+- consigne les observations,
+- termine par un verdict explicite : VALIDÉ / À ITÉRER / ABANDONNÉ / BLOQUÉ.
+	

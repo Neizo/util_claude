@@ -1,0 +1,90 @@
+# PROGRESS.md
+
+## État global
+Phase actuelle : Exploration / POC
+Objectif actuel : Identifier une approche suffisamment bonne visuellement pour passer en stabilisation
+
+## Prochaine priorité
+EXP-004 - Comparer l’approche B avec post-traitement léger contre l’approche C sur le dataset de référence V1
+
+## Expériences
+
+---
+
+### EXP-001 — Baseline initiale
+Statut : VALIDÉ
+
+Hypothèse :
+Une version baseline simple permet d’obtenir un point de comparaison utile.
+
+Implémentation :
+Prototype minimal de la pipeline sans optimisation.
+
+Sorties produites :
+- `outputs/exp-001/img_01.png`
+- `outputs/exp-001/img_02.png`
+- `outputs/exp-001/img_03.png`
+
+Observation :
+La baseline fonctionne sur les cas simples mais produit trop d’artefacts sur les cas bruités.
+
+Verdict :
+VALIDÉ comme baseline de comparaison, mais insuffisant pour usage final.
+
+Fichiers modifiés :
+- `src/pipeline.py`
+- `src/utils.py`
+
+Prochain pas :
+Tester un prétraitement pour réduire le bruit.
+
+---
+
+### EXP-002 — Prétraitement par lissage
+Statut : À ITÉRER
+
+Hypothèse :
+Un lissage en entrée améliore la stabilité visuelle sur les images bruitées.
+
+Implémentation :
+Ajout d’un filtre de lissage avant le traitement principal.
+
+Sorties produites :
+- `outputs/exp-002/comparison_01.png`
+- `outputs/exp-002/comparison_02.png`
+
+Observation :
+Amélioration visible sur plusieurs cas, mais perte de détails fins sur certains contours.
+
+Verdict :
+À ITÉRER
+
+Fichiers modifiés :
+- `src/preprocess.py`
+- `src/pipeline.py`
+
+Prochain pas :
+Tester une intensité plus faible et comparer avec un filtre alternatif.
+
+---
+
+### EXP-003 — Variante avec seuil adaptatif
+Statut : BLOQUÉ
+
+Hypothèse :
+Un seuil adaptatif pourrait mieux gérer les variations locales.
+
+Implémentation :
+Début d’intégration du seuil adaptatif.
+
+Blocage :
+Résultats incohérents sur le dataset actuel, probablement lié à un mauvais calibrage des paramètres.
+
+Verdict :
+BLOQUÉ
+
+Fichiers modifiés :
+- `src/threshold.py`
+
+Prochain pas :
+Créer un mini script de tuning sur 5 cas simples.

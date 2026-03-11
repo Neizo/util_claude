@@ -1,0 +1,65 @@
+# CLAUDE.md
+
+## Contexte du projet
+Ce projet est actuellement en phase de recherche / POC.
+L’objectif principal n’est pas d’industrialiser trop tôt, mais d’explorer plusieurs approches, produire des résultats observables, puis décider lesquelles méritent d’être stabilisées.
+
+## Règles de travail
+Avant toute modification :
+1. Lire `PROGRESS.md`
+2. Lire la spec de l’expérience ou de la tâche en cours dans `planning/`
+3. Résumer en quelques lignes :
+   - l’objectif
+   - l’hypothèse testée
+   - le livrable attendu
+   - le critère de revue visuelle
+
+## Mode d’exécution
+En phase exploratoire :
+- Ne pas considérer une tâche comme “terminée” parce qu’un code fonctionne.
+- Considérer une tâche comme terminée seulement quand :
+  - un prototype exécutable existe,
+  - les sorties attendues ont été produites,
+  - une revue visuelle ou comparative est possible,
+  - les observations ont été consignées,
+  - un verdict explicite a été posé.
+
+## Verdicts autorisés
+Chaque expérience doit se conclure par un de ces statuts :
+- VALIDÉ
+- À ITÉRER
+- ABANDONNÉ
+- BLOQUÉ
+
+## Attentes par tâche
+Pour chaque tâche ou expérience :
+- produire la version minimale testable,
+- éviter la sur-ingénierie,
+- privilégier la lisibilité et la rapidité d’évaluation,
+- générer les sorties nécessaires à une revue visuelle,
+- documenter ce qui a été appris,
+- proposer la prochaine étape la plus logique.
+
+## Industrialisation
+Ne pas industrialiser une approche tant qu’elle n’a pas été validée.
+Une approche validée peut ensuite faire l’objet d’une seconde tâche dédiée à :
+- nettoyage du code,
+- refactor,
+- tests robustes,
+- intégration,
+- documentation.
+
+## Mise à jour obligatoire
+À la fin de chaque session de travail :
+- mettre à jour `PROGRESS.md`,
+- indiquer ce qui a été essayé,
+- indiquer les fichiers modifiés,
+- noter les observations importantes,
+- poser un verdict,
+- proposer le prochain pas.
+
+## Si ambiguïté
+En cas d’ambiguïté sur la qualité du résultat :
+- ne pas prétendre que la tâche est finie,
+- préparer plutôt une sortie observable et une base de comparaison,
+- formuler clairement ce qui reste à juger visuellement.
